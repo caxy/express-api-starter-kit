@@ -6,9 +6,9 @@ import debug from 'debug';
 import cors from 'cors';
 import { Router } from 'express';
 import routes from './controllers';
-import {mockResponse} from './middlewares/mockResponse';
+import { mockResponse } from './middlewares/mockResponse';
 
-const appDebug = debug('glp:app');
+const appDebug = debug('app');
 appDebug('starting api application');
 
 const app = express();
@@ -19,9 +19,11 @@ app.disable('x-powered-by');
 app.set('views', path.join(__dirname, '../views'));
 app.set('view engine', 'pug');
 
-app.use(logger('dev', {
-  skip: () => app.get('env') === 'test'
-}));
+app.use(
+  logger('dev', {
+    skip: () => app.get('env') === 'test'
+  })
+);
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '../public')));
@@ -31,13 +33,14 @@ let whitelist = [process.env.UI_URL, ...process.env.CORS_ORIGIN.split(',')];
 
 router.use(
   '/*',
-  cors({origin: (origin, callback) => {
-      if(whitelist.indexOf('*') !== -1) {
+  cors({
+    origin: (origin, callback) => {
+      if (whitelist.indexOf('*') !== -1) {
         callback(null, true);
       } else if (whitelist.indexOf(origin) !== -1) {
-        callback(null, true)
+        callback(null, true);
       } else {
-        callback(new Error('Not allowed by CORS'))
+        callback(new Error('Not allowed by CORS'));
       }
     }
   }),
@@ -60,14 +63,13 @@ app.use((req, res, next) => {
 });
 
 // Error handler
-app.use((err, req, res, next) => { // eslint-disable-line no-unused-vars
-  res
-    .status(err.status || 500)
-    .render('error', {
-      message: err.message
-    });
+app.use((err, req, res, next) => {
+  // eslint-disable-line no-unused-vars
+  res.status(err.status || 500).render('error', {
+    message: err.message
+  });
 });
 
-export {appDebug};
+export { appDebug };
 
 export default app;
